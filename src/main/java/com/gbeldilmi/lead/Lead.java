@@ -1,7 +1,5 @@
 package com.gbeldilmi.lead;
 
-import akka.actor.AbstractActor;
-import akka.actor.Props;
 import akka.actor.ActorSystem;
 import akka.actor.ActorRef;
 

@@ -9,8 +9,8 @@ public class App {
     for (int i = 0; i < foos.length; i++) {
       foos[i] = new Foo(i);
     }
-    Lead lead = new Lead(foos);
     try {
+      Lead lead = new Lead(foos);
       lead.elect();
     } catch (RuntimeException e) {
       System.out.println(e.getMessage());

@@ -4,6 +4,7 @@ import akka.actor.ActorSystem;
 import akka.actor.ActorRef;
 
 public class Lead { 
+  private ActorSystem actorSystem;
   private ActorRef[] electionActorRefs;
   public Lead(ElectionCandidate... candidates) throws RuntimeException {
     // Create actors :
@@ -12,7 +13,7 @@ public class Lead {
     // --> etc...
     // --> set first ref to last created via message
     ActorRef lastActorRef = null;
-    ActorSystem actorSystem = ActorSystem.create();
+    actorSystem = ActorSystem.create();
     int i = 0;
     if (candidates.length == 0) {
       throw new RuntimeException("No candidates");
@@ -25,5 +26,8 @@ public class Lead {
   }
   public void elect() {
     this.electionActorRefs[0].tell(new ElectionActor.ElectionMessage(-1), ActorRef.noSender());
+  }
+  public void terminate() {
+    actorSystem.terminate();
   }
 }

@@ -5,26 +5,38 @@ import akka.actor.Props;
 import akka.actor.ActorRef;
 
 public class LeadActor extends AbstractActor {
+  private LeadCandidate candidate;
   private ActorRef nextActorRef;
   private int uid;
 
-  protected LeadActor(ActorRef nextActorRef) {
+  protected LeadActor(LeadCandidate candidate) {
+    this(null, candidate);
+  }
+  protected LeadActor(ActorRef nextActorRef, LeadCandidate candidate) {
+    this.candidate = candidate;
     this.nextActorRef = nextActorRef;
     if (this.nextActorRef == null) {
       getContext().become(createReceiveWaitingRef());
     }
     resetUid();
   }
-  public static Props props(ActorRef nextActorRef) {
-    return Props.create(LeadActor.class, nextActorRef);
+  public static Props props(LeadCandidate candidate) {
+    return Props.create(LeadActor.class, candidate);
+  }
+  public static Props props(ActorRef nextActorRef, LeadCandidate candidate) {
+    return Props.create(LeadActor.class, nextActorRef, candidate);
   }
   private void resetUid() {
     this.uid = (int) (Math.random() * 1000000);
   }
 
+  public LeadCandidate getCandidate() { // can be used by other candidates to create an another communicating topology
+    return candidate;
+  }
+
   // States : (>>> : state // + : message // --> : actions)
   // >>> WaitingRef
-  //   + ActorRefMessage         --> set next ref and become candidate
+  //   + ActorRefMessage         --> set next ref, become candidate and send my uid to next
   // >>> Candidate
   //   + ElectionMessage         --> compare
   //         (id = -1 to begin)     if less             --> forward message to next and become non candidate
@@ -39,7 +51,7 @@ public class LeadActor extends AbstractActor {
   //   + ElectedMessage          --> pass as unelected, forward and action event
   //   + ErrorMessage            --> reset and forward
   // >>> ElectionEnded  (= elected | unelected)
-  //   + (nothing)               --> must be overrided to do something
+  //   + (nothing)
   @Override
   public Receive createReceive() {
     return createReceiveCandidate();
@@ -52,6 +64,7 @@ public class LeadActor extends AbstractActor {
   private void waitingRef(LeadActor.ActorRefMessage message) { // --> set next ref and become candidate
     this.nextActorRef = message.actorRef;
     getContext().become(createReceiveCandidate());
+    this.nextActorRef.tell(new LeadActor.ElectionMessage(this.uid), getSelf());
   }
   public Receive createReceiveCandidate() {
     return receiveBuilder()
@@ -68,7 +81,7 @@ public class LeadActor extends AbstractActor {
       if (getSender().equals(getSelf())) { // if same && sender --> send elected to next, become elected and action event
         this.nextActorRef.tell(new LeadActor.ElectedMessage(this.uid), getSelf());
         getContext().become(createReceiveElectionEnded());
-        this.elected();
+        candidate.elected();
       } else { // if same && !sender --> reset uid and send error to next
         resetUid();
         this.nextActorRef.tell(new LeadActor.ErrorMessage(), getSelf());
@@ -78,7 +91,7 @@ public class LeadActor extends AbstractActor {
     }
   }
   private void candidate(LeadActor.ElectedMessage message) { // --> pass as unelected and forward
-    this.unelected();
+    candidate.unelected();
     this.nextActorRef.forward(message, getContext());
     getContext().become(createReceiveElectionEnded());
   }
@@ -101,7 +114,7 @@ public class LeadActor extends AbstractActor {
     this.nextActorRef.forward(message, getContext());
   }
   private void notCandidate(LeadActor.ElectedMessage message) { // --> pass as unelected, forward and action event
-    this.unelected();
+    candidate.unelected();
     this.nextActorRef.forward(message, getContext());
     getContext().become(createReceiveElectionEnded());
   }
@@ -110,12 +123,8 @@ public class LeadActor extends AbstractActor {
     this.nextActorRef.forward(message, getContext());
   }
   public Receive createReceiveElectionEnded() {
-    return receiveBuilder().build(); // nothing, override to do something after election
+    return receiveBuilder().build(); // nothing
   }
-
-  // Events : (must be overrided)
-  public void elected() {}
-  public void unelected() {}
 
   public interface Message {}  
   public static class ActorRefMessage implements Message {

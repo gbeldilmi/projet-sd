@@ -1,8 +1,8 @@
-com/gbeldilmi/lead/ElectionActor$ElectionMessage.class
-com/gbeldilmi/lead/ElectionActor$ErrorMessage.class
+com/gbeldilmi/lead/LeadActor.class
+com/gbeldilmi/lead/LeadActor$ErrorMessage.class
+com/gbeldilmi/lead/LeadActor$ElectionMessage.class
+com/gbeldilmi/lead/LeadActor$ActorRefMessage.class
+com/gbeldilmi/lead/LeadActor$ElectedMessage.class
 com/gbeldilmi/lead/Lead.class
-com/gbeldilmi/lead/ElectionActor$Message.class
-com/gbeldilmi/lead/ElectionActor.class
-com/gbeldilmi/lead/ElectionCandidate.class
-com/gbeldilmi/lead/ElectionActor$ElectedMessage.class
-com/gbeldilmi/lead/ElectionActor$ActorRefMessage.class
+com/gbeldilmi/lead/LeadActor$Message.class
+com/gbeldilmi/lead/LeadCandidate.class

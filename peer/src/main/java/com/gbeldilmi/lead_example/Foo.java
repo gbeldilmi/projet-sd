@@ -1,12 +1,10 @@
 package com.gbeldilmi.lead_example;
 
-import akka.actor.ActorRef;
-import com.gbeldilmi.lead.LeadActor;
+import com.gbeldilmi.lead.LeadCandidate;
 
-public class Foo extends LeadActor {
+public class Foo implements LeadCandidate {
   private int id;
-  public Foo(ActorRef nextActorRef, int id) {
-    super(nextActorRef);
+  public Foo(int id) {
     this.id = id;
   }
   public void elected() {

@@ -5,6 +5,9 @@ import akka.actor.ActorSystem;
 import akka.actor.ActorRef;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+
+import java.io.File;
+import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,19 +35,31 @@ public class Lead {
   }
 
   private void createActorSystems(int nbAs, int noNode, String nextNodeHostname) {
-    as = ActorSystem.create("AS");
+    as = ActorSystem.create("AS", createConfig("127.0.0.1", basePort + noNode));
     nextAs = ActorSystem.create("nextAS", createConfig(nextNodeHostname, basePort + (noNode + 1 < nbAs ? noNode + 1 : 0)));
   }
 
   private Config createConfig(String hostname, int port) {
-    Map<String, Object> map = new HashMap<String, Object>();
-    map.put("akka.actor.provider", "remote");
-    map.put("akka.actor.allow-java-serialization", "true");
-    map.put("akka.actor.warn-about-java-serializer-usage", "false");
-    map.put("akka.remote.artery.transport", "tcp");
-    map.put("akka.remote.artery.canonical.hostname", hostname);
-    map.put("akka.remote.artery.canonical.port", port);
-    return ConfigFactory.parseMap(map);
+    String configFilename = "as_lead_h_" + hostname + "_p_" + port + ".conf";
+    File configFile = new File(configFilename);
+    try {
+      if (!configFile.exists()) {
+        System.out.println("Creating config for " + hostname + ":" + port);
+        String content = "akka {\nactor {\n# provider=remote is possible, but prefer cluster\n"
+          + "provider = remote\nallow-java-serialization = true\nwarn-about-java-serializer-us"
+          + "age = false\n}\nremote {\nartery {\ntransport = tcp # See Selecting a transport b"
+          + "elow\ncanonical.hostname = \"" + hostname + "\"\ncanonical.port = " + port + "\n}"
+          + "}\n}\n";
+        FileWriter fw = new FileWriter(configFile);
+        fw.write(content);
+        fw.close();
+      }
+      System.out.println("Loading config for " + hostname + ":" + port);
+      return ConfigFactory.load("conf");
+    } catch (Exception e) {
+      e.printStackTrace();
+      return null;
+    }
   }
 
   private ActorRef createLeadActors(int noNode, LeadCandidate... candidates) {
@@ -62,6 +77,12 @@ public class Lead {
   }
 
   private void linkActorSystems(int nbAs, int noNode, String nextNodeHostname, ActorRef lastAr) {
+    try {
+      Thread.sleep(5000);
+    } catch (Exception e) {}
+    System.out.println("Linking actor systems\nakka://AS@" + nextNodeHostname + ":" 
+        + (basePort + (noNode + 1 < nbAs ? noNode + 1 : 0)) + "/" + System.getProperty("user.name")
+        + "/leadActor0");
     ActorSelection s = nextAs.actorSelection("akka://AS@" + nextNodeHostname + ":" 
         + (basePort + (noNode + 1 < nbAs ? noNode + 1 : 0)) + "/" + System.getProperty("user.name")
         + "/leadActor0");

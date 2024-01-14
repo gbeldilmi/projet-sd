@@ -10,7 +10,6 @@ import akka.actor.ActorSelection;
 public class Client { 
   private ActorSystem actorSystem;
   private ActorSelection[] selections;
-  private int id;
   public Client(int id, ElectionCandidate... candidates) throws RuntimeException {
     int i;
     if (id < 0) {
@@ -19,7 +18,6 @@ public class Client {
     if (candidates.length == 0) {
       throw new RuntimeException("No candidates");
     }
-    this.id = id;
     actorSystem = ActorSystem.create("client", ConfigFactory.load("client.conf"));
     selections = new ActorSelection[candidates.length];
     for (i = 0; i < selections.length; i++) {

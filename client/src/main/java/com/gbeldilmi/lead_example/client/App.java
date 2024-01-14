@@ -1,4 +1,4 @@
-package com.gbeldilmi.lead_example;
+package com.gbeldilmi.lead_example.client;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

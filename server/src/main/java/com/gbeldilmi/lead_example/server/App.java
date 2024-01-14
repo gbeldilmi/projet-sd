@@ -1,4 +1,4 @@
-package com.gbeldilmi.lead_example;
+package com.gbeldilmi.lead_example.server;
 
 import com.gbeldilmi.lead.Server;
 

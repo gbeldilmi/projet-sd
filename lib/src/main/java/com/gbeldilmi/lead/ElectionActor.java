@@ -29,6 +29,16 @@ public class ElectionActor extends AbstractActor {
     this.uid = (int) (Math.random() * 1000000);
   }
 
+  // Events
+  private void elected() {
+    // this.candidate.elected(); // doesn't work
+    System.out.println("Elected ---- UID : " + uid);
+  }
+  private void unelected() {
+    // this.candidate.unelected(); // doesn't work
+    System.out.println("Unelected -- UID : " + uid);
+  }
+
   // States : (>>> : state // + : message // --> : actions)
   // >>> Waiting
   //   + CandidateMessage        --> set candidate and become candidate if nextActorRef setted
@@ -85,7 +95,7 @@ public class ElectionActor extends AbstractActor {
       if (getSender().equals(getSelf())) { // if same && sender --> send elected to next, become elected and action event
         this.nextActorRef.tell(new ElectionActor.ElectedMessage(this.uid), getSelf());
         getContext().become(createReceiveElectionEnded());
-        this.candidate.elected();
+        this.elected();
       } else { // if same && !sender --> reset uid and send error to next
         resetUid();
         this.nextActorRef.tell(new ElectionActor.ErrorMessage(), getSelf());
@@ -95,7 +105,7 @@ public class ElectionActor extends AbstractActor {
     }
   }
   private void candidate(ElectionActor.ElectedMessage message) { // --> pass as unelected and forward
-    this.candidate.unelected();
+    this.unelected();
     this.nextActorRef.forward(message, getContext());
     getContext().become(createReceiveElectionEnded());
   }
@@ -118,7 +128,7 @@ public class ElectionActor extends AbstractActor {
     this.nextActorRef.forward(message, getContext());
   }
   private void notCandidate(ElectionActor.ElectedMessage message) { // --> pass as unelected, forward and action event
-    this.candidate.unelected();
+    this.unelected();
     this.nextActorRef.forward(message, getContext());
     getContext().become(createReceiveElectionEnded());
   }

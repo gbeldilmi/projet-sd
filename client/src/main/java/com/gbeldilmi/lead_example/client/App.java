@@ -13,7 +13,11 @@ public class App {
     Foo[] foos = new Foo[NB_CANDIDATES];
     id = askId();
     for (int i = 0; i < foos.length; i++) {
-      foos[i] = new Foo(i);
+      try {
+        foos[i] = new Foo(i);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
     }
     try {
       clt = new Client(id, foos);

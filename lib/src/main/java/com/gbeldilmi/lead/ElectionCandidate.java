@@ -1,8 +1,8 @@
 package com.gbeldilmi.lead;
 
-import java.io.Serializable;
+import java.rmi.Remote;
 
-public interface ElectionCandidate extends Serializable  {
+public interface ElectionCandidate extends Remote  {
   public void elected();
   public void unelected();
 }

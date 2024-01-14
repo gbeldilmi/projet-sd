@@ -6,7 +6,7 @@
         <version>0.0.1</version>
     </parent>
 
-    <artifactId>peer</artifactId>
+    <artifactId>server</artifactId>
 
     <dependencies>
         <dependency>

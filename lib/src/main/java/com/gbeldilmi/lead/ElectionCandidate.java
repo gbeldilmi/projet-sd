@@ -1,6 +1,8 @@
 package com.gbeldilmi.lead;
 
-public interface ElectionCandidate {
+import java.rmi.Remote;
+
+public interface ElectionCandidate extends Remote  {
   public void elected();
   public void unelected();
 }

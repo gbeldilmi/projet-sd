@@ -4,7 +4,7 @@ import com.gbeldilmi.lead.Server;
 
 public class App {
   static final int NB_CLIENTS = 1,
-                   NB_CANDIDATES_PER_CLIENT = 1;
+                   NB_CANDIDATES_PER_CLIENT = 10;
   static Server srv;
   public static void main(String[] args) {
     try {

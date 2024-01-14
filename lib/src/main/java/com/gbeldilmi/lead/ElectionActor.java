@@ -10,23 +10,27 @@ public class ElectionActor extends AbstractActor {
   private int uid;
 
   private ElectionActor(ElectionCandidate candidate, ActorRef nextActorRef) {
-    this.candidate = candidate;
+    setCandidate(candidate);
     this.nextActorRef = nextActorRef;
     if (this.nextActorRef == null) {
-      getContext().become(createReceiveWaitingRef());
+      getContext().become(createReceiveWaiting());
     }
     resetUid();
   }
   public static Props props(ElectionCandidate candidate, ActorRef nextActorRef) {
     return Props.create(ElectionActor.class, candidate, nextActorRef);
   }
+  public void setCandidate(ElectionCandidate candidate) {
+    this.candidate = candidate;
+  }
   private void resetUid() {
     this.uid = (int) (Math.random() * 1000000);
   }
 
   // States : (>>> : state // + : message // --> : actions)
-  // >>> WaitingRef
-  //   + ActorRefMessage         --> set next ref and become candidate
+  // >>> Waiting
+  //   + CandidateMessage        --> set candidate and become candidate if nextActorRef setted
+  //   + ActorRefMessage         --> set next ref and become candidate if candidate setted
   // >>> Candidate
   //   + ElectionMessage         --> compare
   //         (id = -1 to begin)     if less             --> forward message to next and become non candidate
@@ -46,14 +50,23 @@ public class ElectionActor extends AbstractActor {
   public Receive createReceive() {
     return createReceiveCandidate();
   }
-  public Receive createReceiveWaitingRef() {
+  public Receive createReceiveWaiting() {
     return receiveBuilder()
+      .match(ElectionActor.CandidateMessage.class, message -> waitingCandidate(message))
       .match(ElectionActor.ActorRefMessage.class, message -> waitingRef(message))
       .build();
   }
-  private void waitingRef(ElectionActor.ActorRefMessage message) { // --> set next ref and become candidate
+  private void waitingCandidate(ElectionActor.CandidateMessage message) { // --> set candidate and become candidate if nextActorRef setted
+    this.candidate = message.candidate;
+    if (this.nextActorRef != null) {
+      getContext().become(createReceiveCandidate());
+    }
+  }
+  private void waitingRef(ElectionActor.ActorRefMessage message) { // --> set next ref and become candidate if candidate setted
     this.nextActorRef = message.actorRef;
-    getContext().become(createReceiveCandidate());
+    if (this.candidate != null) {
+      getContext().become(createReceiveCandidate());
+    }
   }
   public Receive createReceiveCandidate() {
     return receiveBuilder()
@@ -115,7 +128,13 @@ public class ElectionActor extends AbstractActor {
     return receiveBuilder().build(); // (nothing)
   }
 
-  public interface Message {}  
+  public interface Message {}
+  public static class CandidateMessage implements Message {
+    public final ElectionCandidate candidate;
+    public CandidateMessage(ElectionCandidate candidate) {
+      this.candidate = candidate;
+    }
+  }
   public static class ActorRefMessage implements Message {
     public final ActorRef actorRef;
     public ActorRefMessage(ActorRef actorRef) {

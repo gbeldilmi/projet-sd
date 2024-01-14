@@ -5,19 +5,20 @@
   <version>0.0.1</version>
   <packaging>pom</packaging>
 
-	<properties>
-		<maven.compiler.target>1.8</maven.compiler.target>
-	  <maven.compiler.source>1.8</maven.compiler.source>
-	  <akka.version>2.6.20</akka.version>
-	  <scala.binary.version>2.13</scala.binary.version>
-	</properties>
+  <properties>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <akka.version>2.6.20</akka.version>
+    <scala.binary.version>2.13</scala.binary.version>
+  </properties>
 
-	<modules>
-		<module>lib</module>
-		<module>peer</module>
-	</modules>
+  <modules>
+    <module>lib</module>
+    <module>client</module>
+    <module>server</module>
+  </modules>
 
-	<dependencyManagement>
+  <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>com.typesafe.akka</groupId>
@@ -29,11 +30,11 @@
     </dependencies>
   </dependencyManagement>
 
-	<dependencies>
-		<dependency>
-		  <groupId>com.typesafe.akka</groupId>
-		  <artifactId>akka-actor-typed_${scala.binary.version}</artifactId>
-		  <version>${akka.version}</version>
-		</dependency>
-	</dependencies>
+  <dependencies>
+    <dependency>
+      <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-actor-typed_${scala.binary.version}</artifactId>
+      <version>${akka.version}</version>
+    </dependency>
+  </dependencies>
 </project>

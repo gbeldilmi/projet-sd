@@ -1,6 +1,8 @@
 package com.gbeldilmi.lead;
 
-public interface ElectionCandidate {
+import java.io.Serializable;
+
+public interface ElectionCandidate extends Serializable  {
   public void elected();
   public void unelected();
 }

@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import com.gbeldilmi.lead.Client;
 
 public class App {
-  static final int NB_CANDIDATES = 10;
+  static final int NB_CANDIDATES = 1;
   static Client clt;
   static int id;
   public static void main(String[] args) {

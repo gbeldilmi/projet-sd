@@ -21,7 +21,7 @@ public class Client {
     actorSystem = ActorSystem.create("client", ConfigFactory.load("client.conf"));
     selections = new ActorSelection[candidates.length];
     for (i = 0; i < selections.length; i++) {
-      selections[i] = actorSystem.actorSelection("akka://server@127.0.0.1:8000/" + System.getProperty("user.name") + "/ea_" + id + "_" + i);
+      selections[i] = actorSystem.actorSelection("akka://server@127.0.0.1:8000/user/ea_" + id + "_" + i);
       selections[i].tell(new ElectionActor.CandidateMessage(candidates[i]), ActorRef.noSender());
     }
   }

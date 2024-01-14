@@ -1,5 +1,7 @@
 package com.gbeldilmi.lead;
 
+import java.io.Serializable;
+
 import akka.actor.AbstractActor;
 import akka.actor.Props;
 import akka.actor.ActorRef;
@@ -128,7 +130,7 @@ public class ElectionActor extends AbstractActor {
     return receiveBuilder().build(); // (nothing)
   }
 
-  public interface Message {}
+  public interface Message extends Serializable  {}
   public static class CandidateMessage implements Message {
     public final ElectionCandidate candidate;
     public CandidateMessage(ElectionCandidate candidate) {

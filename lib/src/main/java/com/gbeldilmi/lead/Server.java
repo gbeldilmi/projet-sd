@@ -24,7 +24,7 @@ public class Server {
     this.electionActorRefs = new ActorRef[nb_clients * nb_candidates_per_client];
     for (i = 0; i < nb_clients; i++) {
       for (j = 0; j < nb_candidates_per_client; j++) {
-        lastActorRef = this.electionActorRefs[i * j] = actorSystem.actorOf(ElectionActor.props(null, lastActorRef), "ea_" + i + "_" + j);
+        lastActorRef = this.electionActorRefs[i * nb_candidates_per_client + j] = actorSystem.actorOf(ElectionActor.props(null, lastActorRef), "ea_" + i + "_" + j);
       }
     }
     this.electionActorRefs[0].tell(new ElectionActor.ActorRefMessage(lastActorRef), ActorRef.noSender());

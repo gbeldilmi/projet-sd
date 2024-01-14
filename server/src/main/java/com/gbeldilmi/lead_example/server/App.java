@@ -3,12 +3,11 @@ package com.gbeldilmi.lead_example.server;
 import com.gbeldilmi.lead.Server;
 
 public class App {
-  static final int NB_CLIENTS = 1,
-                   NB_CANDIDATES_PER_CLIENT = 1;
+  static final int NB_CLIENTS = 3;
   static Server srv;
   public static void main(String[] args) {
     try {
-      srv = new Server(NB_CLIENTS, NB_CANDIDATES_PER_CLIENT);
+      srv = new Server(NB_CLIENTS);
     } catch (RuntimeException e) {
       System.out.println(e.getMessage());
     }

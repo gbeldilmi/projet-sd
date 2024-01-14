@@ -6,17 +6,11 @@ import java.io.InputStreamReader;
 import com.gbeldilmi.lead.Client;
 
 public class App {
-  static final int NB_CANDIDATES = 1;
   static Client clt;
   static int id;
   public static void main(String[] args) {
-    Foo[] foos = new Foo[NB_CANDIDATES];
-    id = askId();
-    for (int i = 0; i < foos.length; i++) {
-      foos[i] = new Foo(i);
-    }
     try {
-      clt = new Client(id, foos);
+      clt = new Client(askId());
       clt.elect();
     } catch (RuntimeException e) {
       System.out.println(e.getMessage());

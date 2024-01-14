@@ -1,10 +1,8 @@
-com/gbeldilmi/lead/ElectionActor$CandidateMessage.class
 com/gbeldilmi/lead/Client.class
 com/gbeldilmi/lead/Server.class
 com/gbeldilmi/lead/ElectionActor$ElectionMessage.class
 com/gbeldilmi/lead/ElectionActor$ErrorMessage.class
 com/gbeldilmi/lead/ElectionActor$Message.class
 com/gbeldilmi/lead/ElectionActor.class
-com/gbeldilmi/lead/ElectionCandidate.class
 com/gbeldilmi/lead/ElectionActor$ElectedMessage.class
 com/gbeldilmi/lead/ElectionActor$ActorRefMessage.class

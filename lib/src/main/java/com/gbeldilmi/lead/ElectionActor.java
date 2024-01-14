@@ -7,32 +7,35 @@ import akka.actor.Props;
 import akka.actor.ActorRef;
 
 public class ElectionActor extends AbstractActor {
-  private ElectionCandidate candidate;
   private ActorRef nextActorRef;
-  private int uid;
+  private int id, uid;
 
-  private ElectionActor(ElectionCandidate candidate, ActorRef nextActorRef) {
-    setCandidate(candidate);
+  private ElectionActor(int id, ActorRef nextActorRef) {
+    this.id = id;
     this.nextActorRef = nextActorRef;
     if (this.nextActorRef == null) {
       getContext().become(createReceiveWaiting());
     }
     resetUid();
   }
-  public static Props props(ElectionCandidate candidate, ActorRef nextActorRef) {
-    return Props.create(ElectionActor.class, candidate, nextActorRef);
-  }
-  public void setCandidate(ElectionCandidate candidate) {
-    this.candidate = candidate;
+  public static Props props(int id, ActorRef nextActorRef) {
+    return Props.create(ElectionActor.class, id, nextActorRef);
   }
   private void resetUid() {
     this.uid = (int) (Math.random() * 1000000);
   }
 
+  // Events at the end of election must be overrode to add features
+  public void elected() {
+    System.out.println("Actor " + this.id + " elected with uid : " + this.uid);
+  }
+  public void unelected() {
+    System.out.println("Actor " + this.id + " unelected with uid : " + this.uid);
+  }
+
   // States : (>>> : state // + : message // --> : actions)
   // >>> Waiting
-  //   + CandidateMessage        --> set candidate and become candidate if nextActorRef setted
-  //   + ActorRefMessage         --> set next ref and become candidate if candidate setted
+  //   + ActorRefMessage         --> set next ref and become candidate
   // >>> Candidate
   //   + ElectionMessage         --> compare
   //         (id = -1 to begin)     if less             --> forward message to next and become non candidate
@@ -54,21 +57,12 @@ public class ElectionActor extends AbstractActor {
   }
   public Receive createReceiveWaiting() {
     return receiveBuilder()
-      .match(ElectionActor.CandidateMessage.class, message -> waitingCandidate(message))
       .match(ElectionActor.ActorRefMessage.class, message -> waitingRef(message))
       .build();
   }
-  private void waitingCandidate(ElectionActor.CandidateMessage message) { // --> set candidate and become candidate if nextActorRef setted
-    this.candidate = message.candidate;
-    if (this.nextActorRef != null) {
-      getContext().become(createReceiveCandidate());
-    }
-  }
   private void waitingRef(ElectionActor.ActorRefMessage message) { // --> set next ref and become candidate if candidate setted
     this.nextActorRef = message.actorRef;
-    if (this.candidate != null) {
-      getContext().become(createReceiveCandidate());
-    }
+    getContext().become(createReceiveCandidate());
   }
   public Receive createReceiveCandidate() {
     return receiveBuilder()
@@ -85,7 +79,7 @@ public class ElectionActor extends AbstractActor {
       if (getSender().equals(getSelf())) { // if same && sender --> send elected to next, become elected and action event
         this.nextActorRef.tell(new ElectionActor.ElectedMessage(this.uid), getSelf());
         getContext().become(createReceiveElectionEnded());
-        this.candidate.elected();
+        this.elected();
       } else { // if same && !sender --> reset uid and send error to next
         resetUid();
         this.nextActorRef.tell(new ElectionActor.ErrorMessage(), getSelf());
@@ -95,7 +89,7 @@ public class ElectionActor extends AbstractActor {
     }
   }
   private void candidate(ElectionActor.ElectedMessage message) { // --> pass as unelected and forward
-    this.candidate.unelected();
+    this.unelected();
     this.nextActorRef.forward(message, getContext());
     getContext().become(createReceiveElectionEnded());
   }
@@ -118,7 +112,7 @@ public class ElectionActor extends AbstractActor {
     this.nextActorRef.forward(message, getContext());
   }
   private void notCandidate(ElectionActor.ElectedMessage message) { // --> pass as unelected, forward and action event
-    this.candidate.unelected();
+    this.unelected();
     this.nextActorRef.forward(message, getContext());
     getContext().become(createReceiveElectionEnded());
   }
@@ -131,12 +125,6 @@ public class ElectionActor extends AbstractActor {
   }
 
   public interface Message extends Serializable  {}
-  public static class CandidateMessage implements Message {
-    public final ElectionCandidate candidate;
-    public CandidateMessage(ElectionCandidate candidate) {
-      this.candidate = candidate;
-    }
-  }
   public static class ActorRefMessage implements Message {
     public final ActorRef actorRef;
     public ActorRefMessage(ActorRef actorRef) {
@@ -158,5 +146,4 @@ public class ElectionActor extends AbstractActor {
   public static class ErrorMessage implements Message {
     public ErrorMessage() {}
   }
-
 }
